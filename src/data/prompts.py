@@ -52,6 +52,7 @@ def load_support_queries():
                     'Number': row['Number'],
                     'Brief summary': row['Brief summary'],
                     'Further details': row['Further details'],
+                    'category': row['classification Category'],
                 })
     except Exception as e:
         print(f"Error loading support queries: {e}")

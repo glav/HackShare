@@ -21,6 +21,7 @@ def main():
             # Remove "generalised IT request" from short description (ignoring case)
             customer_query = f"{query['Brief summary']} - {query['Further details']}"
             query_number = query['Number']
+            expected_category = query['category']
 
             print(f"\nQuery {i} (ID: {query_number}): '{customer_query}'")
 
@@ -32,7 +33,12 @@ def main():
 
             # Call Azure OpenAI to get a chat completion
             response = get_chat_completion(formatted_prompt, SYSTEM_PROMPT)
-            print(f"Category: {response}")
+            print(f"Generated Category: {response}")
+            print(f"Expected Category: {expected_category}")
+            if response != expected_category:
+                print(f"FAIL!")
+            else:
+                print(f"Pass")
             #print(response)
             #print("\n" + "-" * 50)
 
