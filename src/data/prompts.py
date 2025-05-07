@@ -16,9 +16,11 @@ SYSTEM_PROMPT ="""
     You are to list only the category and subcategory in the response in the
     following format:
     <category>-<subcategory>
-    For example, if the category is "IT Support" and the subcategory is "Hardware",
+    For example, if the topic is "Access", the category is "SAP" and the subcategory is "SAP new user",
     the response should be:
-    IT Support-Hardware
+    SAP-SAP new User
+
+    The topic should not be used in the response.
 """
 
 # User prompts are example inputs that can be used for testing or demonstrations

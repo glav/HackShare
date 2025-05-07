@@ -3,16 +3,16 @@
 This document provides reference list for service catalog items.
 
 ## Service Catalog Reference List
-Id: svc-001
-Category: Compute Resources
-Subcategory: Virtual Machine Deployment
-Brief Description: Request for a new virtual machine
-Description: Request to deploy or create a pre-configured virtual machine with selected OS and specifications for development or production workloads.
+Topic: Access
+Category: SAP
+Subcategory: SAP New User
+Brief Description: Request from a new user to access the SAP system.
+Description: Request from a new contractor or new user to start using the SAP system.
 
 
-Id: svc-002
-Category: New Equipment
+Topic: Hardware
+Category: Mobile Device
 Subcategory: Mobile Phone
 Brief Description: Request for a new mobile phone
-Description: Deploy a pre-configured virtual machine with selected OS and specifications for development or production workloads.
+Description: User has requested a new mobile phone to be provisioned
 
