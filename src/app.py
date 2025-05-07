@@ -2,18 +2,15 @@ from dotenv import load_dotenv
 import os
 from load_env import load_env
 from azure_openai import get_chat_completion
+from data.prompts import SYSTEM_PROMPT, USER_PROMPT
 
 def main():
     # Load environment variables from .env files
     load_env()
 
-    # Example usage of Azure OpenAI chat completion
-    system_prompt = "I am an assistant"
-    user_prompt = "Tell me a dad joke"
-
     try:
         # Call Azure OpenAI to get a chat completion
-        response = get_chat_completion(user_prompt, system_prompt)
+        response = get_chat_completion(USER_PROMPT, SYSTEM_PROMPT)
         print("\nAzure OpenAI Response:")
         print(response)
     except ValueError as e:

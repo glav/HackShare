@@ -17,6 +17,8 @@ def get_chat_completion(user_prompt, system_prompt="I am an assistant"):
     endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
     deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT")
     api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2023-05-15")  # Get API version from env with default
+    # Get APIM subscription key if available
+    apim_subscription_key = os.getenv("APIM_SUBSCRIPTION_KEY")
 
     # Check if required environment variables exist
     if not api_key or not endpoint or not deployment:
@@ -38,6 +40,14 @@ def get_chat_completion(user_prompt, system_prompt="I am an assistant"):
             azure_endpoint=endpoint
         )
 
+        # Prepare default headers for the request
+        extra_headers = {}
+
+        # Add APIM subscription key to headers if available
+        if apim_subscription_key and apim_subscription_key.strip():
+            extra_headers["Ocp-Apim-Subscription-Key"] = apim_subscription_key
+            print("Using APIM subscription key")
+
         # Create chat completion request
         response = client.chat.completions.create(
             model=deployment,
@@ -45,7 +55,8 @@ def get_chat_completion(user_prompt, system_prompt="I am an assistant"):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.7
+            temperature=0.7,
+            extra_headers=extra_headers if extra_headers else None
         )
 
         # Return the response content

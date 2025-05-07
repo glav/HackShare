@@ -3,6 +3,7 @@
     "id": "svc-001",
     "name": "Virtual Machine Deployment",
     "description": "Deploy a pre-configured virtual machine with selected OS and specifications for development or production workloads.",
-    "category": "Compute Resources"
+    "category": "Compute Resources",
+    "keywords": ["virtual machine", "compute", "deployment"],
   }
 ]
