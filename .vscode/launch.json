@@ -4,8 +4,8 @@
       "type": "debugpy",
       "request": "launch",
       "name": "Debug something",
-      "program": "${workspaceFolder}/app.py",
-      "cwd": "${workspaceFolder}/",
+      "program": "${workspaceFolder}/src/app.py",
+      "cwd": "${workspaceFolder}/src",
       "console": "integratedTerminal"
     }
 

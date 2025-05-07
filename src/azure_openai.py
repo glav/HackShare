@@ -45,7 +45,7 @@ def get_chat_completion(user_prompt, system_prompt="I am an assistant"):
 
         # Add APIM subscription key to headers if available
         if apim_subscription_key and apim_subscription_key.strip():
-            extra_headers["Ocp-Apim-Subscription-Key"] = apim_subscription_key
+            extra_headers["api-key"] = apim_subscription_key
             #print("Using APIM subscription key")
 
         # Create chat completion request
