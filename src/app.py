@@ -14,16 +14,20 @@ def main():
     # Load and process the support queries
     support_queries = load_support_queries()
 
-    print(f"Loaded {len(support_queries)} support queries")
+    print(f"\nLoaded {len(support_queries)} support queries\nProcessing...")
 
     try:
         for i, query in enumerate(support_queries, 1):
-            print(f"\nQuery {i} (ID: {query['id']}): '{query['short_description']}'")
+            # Remove "generalised IT request" from short description (ignoring case)
+            customer_query = f"{query['Brief summary']} - {query['Further details']}"
+            query_number = query['Number']
+
+            print(f"\nQuery {i} (ID: {query_number}): '{customer_query}'")
 
             # Format the USER_PROMPT with the current query and references
             formatted_prompt = USER_PROMPT.format(
                 references=catalog_references,
-                customer_request=query['short_description']
+                customer_request=customer_query
             )
 
             # Call Azure OpenAI to get a chat completion

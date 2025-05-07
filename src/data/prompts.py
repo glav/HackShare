@@ -47,8 +47,9 @@ def load_support_queries():
             csv_reader = csv.DictReader(file)
             for row in csv_reader:
                 queries.append({
-                    'id': row['id'],
-                    'short_description': row['short_description']
+                    'Number': row['Number'],
+                    'Brief summary': row['Brief summary'],
+                    'Further details': row['Further details'],
                 })
     except Exception as e:
         print(f"Error loading support queries: {e}")
