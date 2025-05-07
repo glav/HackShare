@@ -1,34 +1,18 @@
 # Service Catalog Reference
 
-This document provides reference information for service catalog items in the HackShare platform.
+This document provides reference list for service catalog items.
 
-## Service Catalog Item Example
+## Service Catalog Reference List
+Id: svc-001
+Category: Compute Resources
+Subcategory: Virtual Machine Deployment
+Brief Description: Request for a new virtual machine
+Description: Request to deploy or create a pre-configured virtual machine with selected OS and specifications for development or production workloads.
 
-```json
-{
-  "id": "svc-001",
-  "name": "Virtual Machine Deployment",
-  "description": "Deploy a pre-configured virtual machine with selected OS and specifications for development or production workloads.",
-  "category": "Compute Resources"
-}
-```
 
-## Fields Description
+Id: svc-002
+Category: New Equipment
+Subcategory: Mobile Phone
+Brief Description: Request for a new mobile phone
+Description: Deploy a pre-configured virtual machine with selected OS and specifications for development or production workloads.
 
-| Field | Description |
-|-------|-------------|
-| id | Unique identifier for the service catalog item |
-| name | Display name of the service |
-| description | Detailed description of what the service provides |
-| category | Classification category for grouping related services |
-
-## Categories
-
-Common categories include:
-- Compute Resources
-- Storage Solutions
-- Network Services
-- Developer Tools
-- Analytics Services
-- Database Services
-- Security Services
