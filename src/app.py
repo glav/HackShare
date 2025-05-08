@@ -4,6 +4,7 @@ from load_env import load_env
 from azure_openai import get_chat_completion
 from data.prompts import SYSTEM_PROMPT, USER_PROMPT, load_support_queries, load_catalog_references
 from stats import QueryStats
+from results_store import ResultsStore
 
 def main():
     # Load environment variables from .env files
@@ -15,6 +16,9 @@ def main():
     # Load and process the support queries
     support_queries = load_support_queries()
     query_stats = QueryStats(len(support_queries))
+
+    # Initialize results store
+    results_store = ResultsStore()
 
     print(f"\nLoaded {len(support_queries)} support queries\nProcessing...")
 
@@ -37,7 +41,16 @@ def main():
             response = get_chat_completion(formatted_prompt, SYSTEM_PROMPT)
             print(f"Generated Category: {response}")
             print(f"Expected Category: {expected_category}")
-            if response != expected_category:
+
+            # Store the result in the ResultsStore
+            is_correct = results_store.add_result(
+                query_number,
+                customer_query,
+                expected_category,
+                response
+            )
+
+            if not is_correct:
                 query_stats.increment_fail()
                 print(f"FAIL!")
             else:
@@ -46,6 +59,7 @@ def main():
             #print(response)
         print("\n" + "-" * 50)
         print(query_stats)
+        print("\n" + str(results_store))
 
     except ValueError as e:
         print(f"Error: {e}")

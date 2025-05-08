@@ -1,0 +1,3 @@
+Timestamp,QueryID,CustomerQuery,ExpectedCategory,GeneratedCategory,IsCorrect
+2025-05-08 01:15:39,R1,New PHONE request for John Doe - ,Mobile Device-Mobile Phone,Mobile Device-Mobile Phone,Pass
+2025-05-08 01:15:40,R2,I am unable to login - ,,Unknown,Fail
