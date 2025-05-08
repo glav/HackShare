@@ -82,8 +82,6 @@ class QueryStats:
             "completion_percentage": (processed / self.total_queries * 100) if self.total_queries > 0 else 0
         }
 
-
-
     def __str__(self):
         """
         String representation of the query statistics.
@@ -92,9 +90,30 @@ class QueryStats:
             str: A formatted string with the statistics
         """
         import json
+        import os
         stats = self.get_stats_summary()
-        with open("stats.json", 'w') as f:
-            json.dump(stats, f, indent=4)
+        
+        # Check if file exists and load existing data
+        stats_file = "stats.json"
+        all_stats = []
+        
+        if os.path.exists(stats_file):
+            try:
+                with open(stats_file, 'r') as f:
+                    all_stats = json.load(f)
+                    # Ensure it's a list even if it wasn't before
+                    if not isinstance(all_stats, list):
+                        all_stats = [all_stats]
+            except json.JSONDecodeError:
+                # Handle case where file exists but isn't valid JSON
+                all_stats = []
+        
+        # Append new stats
+        all_stats.append(stats)
+        
+        # Write back to file
+        with open(stats_file, 'w') as f:
+            json.dump(all_stats, f, indent=2)
             
         return (f"Query Statistics:\n"
                 f"  Total Queries: {stats['total_queries']}\n"

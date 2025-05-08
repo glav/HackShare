@@ -3,7 +3,7 @@
 Query Processing Visualization Script
 
 This script generates visualizations based on the query processing statistics
-from stats.json and saves them as image files.
+from a JSON file and saves them as image files.
 """
 
 import json
@@ -15,6 +15,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import argparse
 
 # Set visualization style
 sns.set_style('whitegrid')
@@ -25,12 +26,33 @@ plt.rcParams['font.size'] = 12
 output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'visualizations')
 os.makedirs(output_dir, exist_ok=True)
 
-def load_stats():
-    """Load the statistics from the JSON file."""
-    stats_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stats.json')
+def load_stats(stats_file='stats.json'):
+    """
+    Load the statistics from the JSON file.
+
+    Args:
+        stats_file (str): The name of the JSON file with statistics
+
+    Returns:
+        tuple: (latest_stats, all_stats) where latest_stats is the last object and all_stats is the complete array
+    """
+    stats_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), stats_file)
     with open(stats_path, 'r') as file:
-        stats = json.load(file)
-    return stats
+        data = json.load(file)
+
+    # Check if the loaded data is an array
+    if isinstance(data, list):
+        latest_stats = data[-1]  # Get the last object from the array
+        all_stats = data  # Keep the complete array for time-series visualization
+        print(f"Loaded stats from entry {len(data)} of {len(data)} in the array")
+        print(f"Found {len(data)} stats entries for time-series visualization")
+    else:
+        # Handle case where it's already a single object
+        latest_stats = data
+        all_stats = [data]  # Wrap in list for consistent handling
+        print("Loaded single stats entry (no time-series data available)")
+
+    return latest_stats, all_stats
 
 def create_summary_dataframe(stats):
     """Create a summary DataFrame from the stats."""
@@ -99,67 +121,72 @@ def generate_success_rate_gauge(stats, output_dir):
     print(f"Saved success rate gauge to {output_path}")
     return fig
 
-def generate_completion_gauge(stats, output_dir):
-    """Generate a gauge chart showing the completion percentage."""
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number+delta",
-        value=stats['completion_percentage'],
-        domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': "Completion Rate"},
-        delta={'reference': 100},
-        gauge={
-            'axis': {'range': [0, 100]},
-            'bar': {'color': "darkblue"},
-            'bgcolor': "white",
-            'borderwidth': 2,
-            'bordercolor': "gray",
-            'steps': [
-                {'range': [0, 100], 'color': "#E0F2F1"}
-            ]
-        }
-    ))
+def generate_success_rate_over_time(all_stats, output_dir):
+    """
+    Generate a bar chart showing success rate over time across multiple stats entries.
 
-    fig.update_layout(
-        height=300
+    Args:
+        all_stats (list): List of stats objects containing pass_percentage values
+        output_dir (str): Directory to save the visualization
+
+    Returns:
+        Figure: The generated plotly figure
+    """
+    # Create data for the chart
+    data = []
+    for i, stats in enumerate(all_stats):
+        # Use either timestamp if available, or just the entry number
+        timestamp = stats.get('timestamp', f'Run {i+1}')
+        data.append({
+            'Run': timestamp,
+            'Success Rate (%)': stats['pass_percentage'],
+            'Index': i + 1  # For sorting
+        })
+
+    # Convert to dataframe for easier plotting
+    df = pd.DataFrame(data)
+
+    # Create the bar chart
+    fig = px.bar(
+        df,
+        x='Index',
+        y='Success Rate (%)',
+        title='Success Rate Over Time',
+        text_auto='.1f',
+        labels={'Index': 'Run Number', 'Success Rate (%)': 'Success Rate (%)'}
     )
 
-    output_path = os.path.join(output_dir, 'completion_gauge.png')
-    fig.write_image(output_path, scale=2)
-    print(f"Saved completion gauge to {output_path}")
-    return fig
-
-def generate_comparative_bar_chart(stats, output_dir):
-    """Generate a bar chart comparing pass and fail counts."""
-    fig = go.Figure()
-
-    fig.add_trace(go.Bar(
-        x=['Results'],
-        y=[stats['pass_count']],
-        name='Pass',
-        marker_color='#4CAF50',
-        text=[f"{stats['pass_count']} ({stats['pass_percentage']:.1f}%)"],
-        textposition='auto'
-    ))
-
-    fig.add_trace(go.Bar(
-        x=['Results'],
-        y=[stats['fail_count']],
-        name='Fail',
-        marker_color='#F44336',
-        text=[f"{stats['fail_count']} ({stats['fail_percentage']:.1f}%)"],
-        textposition='auto'
-    ))
-
+    # Improve layout
     fig.update_layout(
-        title='Pass vs Fail Counts',
-        yaxis=dict(title='Count'),
-        barmode='group',
-        title_x=0.5
+        title_x=0.5,
+        xaxis=dict(
+            tickmode='linear',
+            dtick=1
+        ),
+        yaxis=dict(
+            range=[0, 100]
+        ),
+        plot_bgcolor='rgba(0,0,0,0.02)'
     )
 
-    output_path = os.path.join(output_dir, 'pass_fail_bar_chart.png')
+    # Add a trendline if more than 2 data points
+    if len(all_stats) > 2:
+        x = list(range(1, len(all_stats) + 1))
+        y = [stats['pass_percentage'] for stats in all_stats]
+
+        fig.add_trace(go.Scatter(
+            x=x,
+            y=y,
+            mode='lines',
+            name='Trend',
+            line=dict(color='red', width=2, dash='dot')
+        ))
+
+    # Save the figure
+    output_path = os.path.join(output_dir, 'success_rate_over_time.png')
     fig.write_image(output_path, scale=2)
-    print(f"Saved bar chart to {output_path}")
+    print(f"Saved success rate over time chart to {output_path}")
+
     return fig
 
 def generate_summary_report(stats, output_dir):
@@ -187,16 +214,22 @@ def generate_summary_report(stats, output_dir):
         f.write(report)
     print(f"Saved summary report to {output_path}")
 
-def generate_combined_dashboard(stats, output_dir):
-    """Generate a combined dashboard with all visualizations."""
+def generate_combined_dashboard(stats, all_stats, output_dir):
+    """Generate a combined dashboard with all visualizations.
+
+    Args:
+        stats (dict): Latest stats object for current visualizations
+        all_stats (list): List of all stats objects for time-series visualization
+        output_dir (str): Directory to save the visualization
+    """
     fig = make_subplots(
         rows=2, cols=2,
         specs=[
             [{"type": "pie"}, {"type": "indicator"}],
-            [{"type": "bar"}, {"type": "indicator"}]
+            [{"type": "bar", "colspan": 2}, None]
         ],
         subplot_titles=("Pass/Fail Distribution", "Success Rate",
-                        "Pass vs Fail Counts", "Completion Rate")
+                        "Success Rate Over Time")
     )
 
     # Add pie chart
@@ -231,50 +264,46 @@ def generate_combined_dashboard(stats, output_dir):
         row=1, col=2
     )
 
-    # Add bar chart
+    # Add success rate over time chart
+    x_values = list(range(1, len(all_stats) + 1))
+    y_values = [s['pass_percentage'] for s in all_stats]
+
     fig.add_trace(
         go.Bar(
-            x=['Pass'],
-            y=[stats['pass_count']],
-            marker_color='#4CAF50',
-            showlegend=False
+            x=x_values,
+            y=y_values,
+            marker_color='#2196F3',
+            text=[f"{val:.1f}%" for val in y_values],
+            textposition='auto',
+            name='Success Rate'
         ),
         row=2, col=1
     )
 
-    fig.add_trace(
-        go.Bar(
-            x=['Fail'],
-            y=[stats['fail_count']],
-            marker_color='#F44336',
-            showlegend=False
-        ),
-        row=2, col=1
-    )
+    # Add trend line if we have enough data points
+    if len(all_stats) > 2:
+        fig.add_trace(
+            go.Scatter(
+                x=x_values,
+                y=y_values,
+                mode='lines',
+                name='Trend',
+                line=dict(color='red', width=2, dash='dot')
+            ),
+            row=2, col=1
+        )
 
-    # Add completion gauge
-    fig.add_trace(
-        go.Indicator(
-            mode="gauge+number",
-            value=stats['completion_percentage'],
-            domain={'x': [0, 1], 'y': [0, 1]},
-            gauge={
-                'axis': {'range': [0, 100]},
-                'bar': {'color': "darkblue"},
-                'steps': [
-                    {'range': [0, 100], 'color': "#E0F2F1"}
-                ],
-            }
-        ),
-        row=2, col=2
-    )
-
+    # Update layout for the dashboard
     fig.update_layout(
-        height=800,
+        height=800,  # Reduced height since we have fewer visualizations
         width=1000,
         title_text="Query Processing Analysis Dashboard",
         title_x=0.5
     )
+
+    # Update x-axis for the success rate over time chart
+    fig.update_xaxes(title_text="Run Number", row=2, col=1)
+    fig.update_yaxes(title_text="Success Rate (%)", range=[0, 100], row=2, col=1)
 
     output_path = os.path.join(output_dir, 'dashboard.png')
     fig.write_image(output_path, scale=2)
@@ -283,18 +312,24 @@ def generate_combined_dashboard(stats, output_dir):
 
 def main():
     """Main function to generate all visualizations."""
-    stats = load_stats()
-    summary_df = create_summary_dataframe(stats)
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Generate visualizations from query processing statistics')
+    parser.add_argument('--file', '-f', dest='stats_file', default='stats.json',
+                      help='JSON file containing statistics (default: stats.json)')
+    args = parser.parse_args()
+
+    print(f"Loading statistics from: {args.stats_file}")
+    latest_stats, all_stats = load_stats(args.stats_file)
+    summary_df = create_summary_dataframe(latest_stats)
     print("Summary Statistics:")
     print(summary_df)
 
     # Generate all visualizations
-    generate_pass_fail_pie_chart(stats, output_dir)
-    generate_success_rate_gauge(stats, output_dir)
-    generate_completion_gauge(stats, output_dir)
-    generate_comparative_bar_chart(stats, output_dir)
-    generate_summary_report(stats, output_dir)
-    generate_combined_dashboard(stats, output_dir)
+    generate_pass_fail_pie_chart(latest_stats, output_dir)
+    generate_success_rate_gauge(latest_stats, output_dir)
+    generate_success_rate_over_time(all_stats, output_dir)
+    generate_summary_report(latest_stats, output_dir)
+    generate_combined_dashboard(latest_stats, all_stats, output_dir)
 
     print(f"\nAll visualizations saved to: {output_dir}")
 
