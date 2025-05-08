@@ -1,0 +1,10 @@
+{
+  "total_queries": 63,
+  "processed_queries": 63,
+  "remaining_queries": 0,
+  "pass_count": 37,
+  "fail_count": 26,
+  "pass_percentage": 58.730158730158735,
+  "fail_percentage": 41.269841269841265,
+  "completion_percentage": 100.0
+}

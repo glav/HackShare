@@ -82,6 +82,8 @@ class QueryStats:
             "completion_percentage": (processed / self.total_queries * 100) if self.total_queries > 0 else 0
         }
 
+
+
     def __str__(self):
         """
         String representation of the query statistics.
@@ -89,7 +91,11 @@ class QueryStats:
         Returns:
             str: A formatted string with the statistics
         """
+        import json
         stats = self.get_stats_summary()
+        with open("stats.json", 'w') as f:
+            json.dump(stats, f, indent=4)
+            
         return (f"Query Statistics:\n"
                 f"  Total Queries: {stats['total_queries']}\n"
                 f"  Processed: {stats['processed_queries']} ({stats['completion_percentage']:.1f}%)\n"
