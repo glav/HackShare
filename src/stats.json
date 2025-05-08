@@ -28,15 +28,25 @@
     "pass_percentage": 73.01587301587301,
     "fail_percentage": 26.984126984126984,
     "completion_percentage": 100.0
-},
-{
-  "total_queries": 63,
-  "processed_queries": 63,
-  "remaining_queries": 0,
-  "pass_count": 52,
-  "fail_count": 11,
-  "pass_percentage": 82.53968253968253,
-  "fail_percentage": 17.46031746031746,
-  "completion_percentage": 100.0
-}
+  },
+  {
+    "total_queries": 63,
+    "processed_queries": 63,
+    "remaining_queries": 0,
+    "pass_count": 52,
+    "fail_count": 11,
+    "pass_percentage": 82.53968253968253,
+    "fail_percentage": 17.46031746031746,
+    "completion_percentage": 100.0
+  },
+  {
+    "total_queries": 63,
+    "processed_queries": 63,
+    "remaining_queries": 0,
+    "pass_count": 53,
+    "fail_count": 10,
+    "pass_percentage": 84.12698412698413,
+    "fail_percentage": 15.873015873015872,
+    "completion_percentage": 100.0
+  }
 ]

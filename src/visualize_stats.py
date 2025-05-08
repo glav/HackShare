@@ -295,10 +295,18 @@ def generate_combined_dashboard(stats, all_stats, output_dir):
 
     # Update layout for the dashboard
     fig.update_layout(
-        height=800,  # Reduced height since we have fewer visualizations
+        height=900,  # Increased height to make room for the legend below
         width=1000,
         title_text="Query Processing Analysis Dashboard",
-        title_x=0.5
+        title_x=0.5,
+        # Place legend below the chart
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.15,  # This negative value pushes it below the graph
+            xanchor="center",
+            x=0.5
+        )
     )
 
     # Update x-axis for the success rate over time chart
