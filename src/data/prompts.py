@@ -3,6 +3,7 @@ This module contains predefined prompts for the OpenAI API.
 """
 import os
 import csv
+from data.catalog_data_reader import CatalogDataReader
 
 # System prompts define the behavior and capabilities of the assistant
 SYSTEM_PROMPT ="""
@@ -61,17 +62,38 @@ def load_support_queries():
 
 def load_catalog_references():
     """
-    Loads catalog references from catalog_reference.md file.
-    """
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    references_file_path = os.path.join(current_dir, 'catalog_reference.md')
+    Loads catalog references from catalog_reference.csv and returns them as a formatted text string.
+    Each catalog item is formatted with Category, Subcategory, Brief Description, and Description,
+    separated by a line of dashes.
 
+    Returns:
+        str: Formatted text containing all catalog references
+    """
+    reader = CatalogDataReader()
+    reader.read_catalog_csv("./data/catalog_reference.csv")
+    catalog_items = reader.get_catalog_items()
+
+    formatted_text = ""
+    for item in catalog_items:
+        formatted_text += f"Category: {item['category']}\n"
+        formatted_text += f"Subcategory: {item['name']}\n"
+        formatted_text += f"Brief Description: {item['short_description']}\n"
+        formatted_text += f"Description: {item['description']}\n"
+        formatted_text += "-----------------------------\n"
+
+    # Save the formatted text to a file
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file_path = os.path.join(current_dir, 'catalog_data_reference.md')
     try:
-        with open(references_file_path, 'r') as file:
-            return file.read()
+        with open(output_file_path, 'w', encoding='utf-8') as file:
+            file.write(formatted_text)
+        print(f"Catalog data reference saved to {output_file_path}")
     except Exception as e:
-        print(f"Error loading catalog references: {e}")
-        return ""
+        print(f"Error saving catalog data reference: {e}")
+
+    return formatted_text
+
+
 
 
 
